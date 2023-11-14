@@ -1,4 +1,4 @@
-import javafx.animation.*;
+import javafx.animation.AnimationTimer;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.fxml.FXML;
@@ -11,11 +11,9 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Rectangle;
-import javafx.util.Duration;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -23,15 +21,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class Controller {
 
     private static final String RECORD_FILE = "record";
     private static final double ACC = 5;
     private final Set<KeyCode> keysPressed = new HashSet<>();
-    private final List<Image> obstaclesImages = getImages("obstacles");
+    private final List<Image> obstaclesImages = FileUtils.getImages("obstacles");
     private final Set<Rectangle> obstacles = new HashSet<>();
     private final double START_SPEED = 300;
     private final double START_TIME_OUT = 2;
@@ -40,29 +36,15 @@ public class Controller {
     public AnchorPane gamePane;
     public Label scoreLabel;
     public Label recordLabel;
-    @FXML
-    private Rectangle player;
-    private Image jumpImage;
-    private TranslateTransition jumpTransition;
-    private Timeline walkAnimation;
+
+    private final Player player = new Player("p2");
+
     private long lastUpdate;
     private long lastGen;
     private AnimationTimer timer;
     private double speed = START_SPEED;
     private double genTimeOut = START_TIME_OUT;
     private long startTime;
-
-    private static List<Image> getImages(String dir) {
-        return Stream.of(new File(Main.class.getResource(dir).getFile()).listFiles())
-                .map(file -> {
-                    try {
-                        return new Image(Files.newInputStream(file.toPath()));
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                })
-                .collect(Collectors.toList());
-    }
 
     private static void saveRecord(int value) {
         try (DataOutputStream os = new DataOutputStream(Files.newOutputStream(Paths.get(RECORD_FILE)))) {
@@ -82,6 +64,10 @@ public class Controller {
 
     @FXML
     private void initialize() {
+        gamePane.getChildren().add(player);
+        player.setTranslateX(80);
+        AnchorPane.setBottomAnchor(player, 0.0);
+
         score.addListener((observable, oldValue, newValue) -> {
             scoreLabel.setText(String.valueOf(newValue.intValue()));
         });
@@ -91,23 +77,6 @@ public class Controller {
         });
 
         record.set(loadRecord());
-
-        jumpImage = new Image(Main.class.getResourceAsStream("p1_jump.png"));
-
-        List<Image> walkImages = getImages("walk");
-
-        walkAnimation = new Timeline();
-        walkAnimation.setCycleCount(Animation.INDEFINITE);
-        for (int i = 0; i < walkImages.size(); i++) {
-            Image image = walkImages.get(i);
-            KeyFrame keyFrame = new KeyFrame(Duration.millis(50 * i), new KeyValue(player.fillProperty(), new ImagePattern(image)));
-            walkAnimation.getKeyFrames().add(keyFrame);
-        }
-
-        jumpTransition = new TranslateTransition(Duration.millis(400), player);
-        jumpTransition.setByY(-120);
-        jumpTransition.setAutoReverse(true);
-        jumpTransition.setCycleCount(2);
 
         player.sceneProperty().addListener((observable, oldValue, scene) -> {
             scene.setOnKeyPressed(event -> {
@@ -140,10 +109,6 @@ public class Controller {
         score.set(0);
     }
 
-    private void jump() {
-        player.setFill(new ImagePattern(jumpImage));
-    }
-
     private void update(long now) {
         if (lastUpdate == 0) {
             startTime = now;
@@ -152,17 +117,12 @@ public class Controller {
         double dtSeconds = (now - lastUpdate) / 1e9;
         lastUpdate = now;
 
-        if (jumpTransition.getStatus() != Animation.Status.RUNNING) {
+        if (!player.inJump()) {
             if (keysPressed.isEmpty()) {
-                walkAnimation.play();
+                player.walk();
             }
             if (keysPressed.contains(KeyCode.SPACE)) {
-                if (jumpTransition.getStatus() != Animation.Status.RUNNING) {
-                    walkAnimation.jumpTo(Duration.ZERO);
-                    walkAnimation.stop();
-                    jumpTransition.play();
-                    jump();
-                }
+                player.jump();
             }
         }
 
@@ -170,7 +130,7 @@ public class Controller {
             obstacle.setTranslateX(obstacle.getTranslateX() - speed * dtSeconds);
             if (obstacle.getBoundsInParent().intersects(player.getBoundsInParent())) {
                 timer.stop();
-                walkAnimation.stop();
+                player.stop();
                 Alert alert = new Alert(Alert.AlertType.NONE, "", ButtonType.OK);
                 alert.setHeaderText("Game Over");
                 alert.setOnHidden(event -> {
