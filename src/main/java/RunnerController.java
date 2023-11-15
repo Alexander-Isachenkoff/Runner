@@ -8,7 +8,6 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Rectangle;
 
@@ -22,7 +21,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-public class Controller {
+public class RunnerController {
 
     private static final String RECORD_FILE = "record";
     private static final double ACC = 5;
@@ -37,7 +36,7 @@ public class Controller {
     public Label scoreLabel;
     public Label recordLabel;
 
-    private final Player player = new Player("p2");
+    private Player player;
 
     private long lastUpdate;
     private long lastGen;
@@ -64,10 +63,6 @@ public class Controller {
 
     @FXML
     private void initialize() {
-        gamePane.getChildren().add(player);
-        player.setTranslateX(80);
-        AnchorPane.setBottomAnchor(player, 0.0);
-
         score.addListener((observable, oldValue, newValue) -> {
             scoreLabel.setText(String.valueOf(newValue.intValue()));
         });
@@ -78,7 +73,7 @@ public class Controller {
 
         record.set(loadRecord());
 
-        player.sceneProperty().addListener((observable, oldValue, scene) -> {
+        gamePane.sceneProperty().addListener((observable, oldValue, scene) -> {
             scene.setOnKeyPressed(event -> {
                 keysPressed.add(event.getCode());
             });
@@ -95,6 +90,13 @@ public class Controller {
         };
 
         restart();
+    }
+
+    public void setPlayer(Player player) {
+        this.player = player;
+        gamePane.getChildren().add(player);
+        player.setTranslateX(80);
+        AnchorPane.setBottomAnchor(player, 0.0);
     }
 
     private void restart() {
@@ -147,8 +149,8 @@ public class Controller {
             Rectangle rectangle = new Rectangle(image.getWidth(), image.getHeight());
             rectangle.setFill(new ImagePattern(image));
             gamePane.getChildren().add(rectangle);
-            rectangle.setStroke(Color.RED);
-            rectangle.setStrokeWidth(1);
+//            rectangle.setStroke(Color.RED);
+//            rectangle.setStrokeWidth(1);
             AnchorPane.setBottomAnchor(rectangle, 0.0);
             rectangle.setTranslateX(gamePane.getWidth());
             obstacles.add(rectangle);
