@@ -8,9 +8,9 @@
 <?import javafx.scene.text.Font?>
 
 
-<VBox alignment="CENTER" prefHeight="360.0" prefWidth="720.0" spacing="20.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="MenuController">
+<VBox alignment="CENTER" prefHeight="400.0" prefWidth="800.0" spacing="20.0" stylesheets="@style.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="MenuController">
    <children>
-      <Label text="Player">
+      <Label styleClass="hud-label" text="Player">
          <font>
             <Font name="System Bold" size="18.0" />
          </font>
