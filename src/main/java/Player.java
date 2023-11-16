@@ -9,7 +9,6 @@ import java.util.List;
 public class Player extends Rectangle {
 
     private final Image jumpImage;
-    private final Image frontImage;
     private final TranslateTransition jumpTransition;
     private final Timeline walkAnimation;
 
@@ -18,7 +17,6 @@ public class Player extends Rectangle {
         setHeight(54);
 
         jumpImage = new Image(Main.class.getResourceAsStream("players/" + dir + "/jump.png"));
-        frontImage = new Image(Main.class.getResourceAsStream("players/" + dir + "/front.png"));
 
         List<Image> walkImages = FileUtils.getImages("players/" + dir + "/walk");
 
@@ -47,11 +45,6 @@ public class Player extends Rectangle {
             jumpTransition.play();
             setFill(new ImagePattern(jumpImage));
         }
-    }
-
-    public void stand() {
-        walkAnimation.stop();
-        setFill(new ImagePattern(frontImage));
     }
 
     public boolean inJump() {
