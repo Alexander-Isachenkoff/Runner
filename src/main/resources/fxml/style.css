@@ -8,7 +8,7 @@
     -fx-font-family: "Comic Sans MS";
 }
 
-.button {
+.button, .toggle-button {
     -fx-background-insets: 0;
     -fx-background-color: white;
     -fx-background-radius: 10;
@@ -18,16 +18,41 @@
     -fx-effect: dropshadow(three-pass-box, #AAA, 0, 0, 0, 5);
 }
 
-.button .text {
-    -fx-font-smoothing-type: GRAY;
+.button .text, .toggle-button .text {
+    -fx-font-size: 18;
 }
 
-.button:hover {
+.button:hover, .toggle-button:hover {
     -fx-background-color: LIGHTGRAY;
 }
 
-.button:pressed {
+.button:pressed, .toggle-button:pressed {
     -fx-effect: none;
     -fx-translate-y: 5;
     -fx-border-width: 1;
+}
+
+.toggle-button:selected {
+    -fx-background-color: LIGHTSKYBLUE;
+    -fx-text-fill: BLACK;
+}
+
+.pagination {
+    -fx-arrow-button-gap: 10;
+}
+
+.number-button, .left-arrow-button, .right-arrow-button {
+    -fx-min-width:  32;
+    -fx-min-height: 32;
+    -fx-background-radius: 16;
+    -fx-border-radius: 16;
+    -fx-padding: 0;
+}
+
+.page-information .text {
+    visibility: hidden;
+}
+
+.control-box {
+    -fx-spacing: 10;
 }
