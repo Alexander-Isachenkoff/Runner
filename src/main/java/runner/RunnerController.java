@@ -4,12 +4,14 @@ import javafx.animation.AnimationTimer;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
+import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
+import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Rectangle;
 
@@ -76,6 +78,9 @@ public class RunnerController {
         record.set(loadRecord());
 
         gamePane.sceneProperty().addListener((observable, oldValue, scene) -> {
+            if (scene == null) {
+                return;
+            }
             scene.setOnKeyPressed(event -> {
                 keysPressed.add(event.getCode());
             });
@@ -133,14 +138,7 @@ public class RunnerController {
         for (Rectangle obstacle : obstacles) {
             obstacle.setTranslateX(obstacle.getTranslateX() - speed * dtSeconds);
             if (obstacle.getBoundsInParent().intersects(player.getBoundsInParent())) {
-                timer.stop();
-                player.stop();
-                Alert alert = new Alert(Alert.AlertType.NONE, "", ButtonType.OK);
-                alert.setHeaderText("Game Over");
-                alert.setOnHidden(event -> {
-                    restart();
-                });
-                alert.show();
+                gameOver();
             }
         }
 
@@ -151,8 +149,6 @@ public class RunnerController {
             Rectangle rectangle = new Rectangle(image.getWidth(), image.getHeight());
             rectangle.setFill(new ImagePattern(image));
             gamePane.getChildren().add(rectangle);
-//            rectangle.setStroke(Color.RED);
-//            rectangle.setStrokeWidth(1);
             AnchorPane.setBottomAnchor(rectangle, 0.0);
             rectangle.setTranslateX(gamePane.getWidth());
             obstacles.add(rectangle);
@@ -165,6 +161,46 @@ public class RunnerController {
         if (score.get() > record.get()) {
             record.set(score.get());
         }
+    }
+
+    private void gameOver() {
+        timer.stop();
+        FXMLLoader loader = new FXMLLoader(Main.class.getResource("fxml/game_over.fxml"));
+        Parent load;
+        try {
+            load = loader.load();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        VBox wrapper = new VBox(load);
+        wrapper.setAlignment(Pos.CENTER);
+        wrapper.setFillWidth(false);
+        gamePane.getChildren().add(wrapper);
+        AnchorPane.setTopAnchor(wrapper, 0.0);
+        AnchorPane.setBottomAnchor(wrapper, 0.0);
+        AnchorPane.setLeftAnchor(wrapper, 0.0);
+        AnchorPane.setRightAnchor(wrapper, 0.0);
+
+        GameOverController controller = loader.getController();
+
+        controller.setOnMenu(this::onMenu);
+        controller.setOnRestart(() -> {
+            gamePane.getChildren().remove(wrapper);
+            restart();
+        });
+    }
+
+    @FXML
+    private void onMenu() {
+        FXMLLoader loader = new FXMLLoader(Main.class.getResource("fxml/menu.fxml"));
+        Parent parent;
+        try {
+            parent = loader.load();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        gamePane.getScene().setRoot(parent);
     }
 
 }
