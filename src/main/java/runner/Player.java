@@ -1,3 +1,5 @@
+package runner;
+
 import javafx.animation.*;
 import javafx.scene.image.Image;
 import javafx.scene.paint.ImagePattern;
