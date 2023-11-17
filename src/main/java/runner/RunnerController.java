@@ -20,10 +20,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 public class RunnerController {
 
@@ -36,9 +33,12 @@ public class RunnerController {
     private final double START_TIME_OUT = 2;
     private final IntegerProperty record = new SimpleIntegerProperty(-1);
     private final IntegerProperty score = new SimpleIntegerProperty(-1);
-    public AnchorPane gamePane;
-    public Label scoreLabel;
-    public Label recordLabel;
+    @FXML
+    private AnchorPane gamePane;
+    @FXML
+    private Label scoreLabel;
+    @FXML
+    private Label recordLabel;
 
     private Player player;
 
@@ -95,18 +95,18 @@ public class RunnerController {
                 update(now);
             }
         };
-
-        restart();
     }
 
-    public void setPlayer(Player player) {
+    void setPlayer(Player player) {
         this.player = player;
         gamePane.getChildren().add(player);
-        player.setTranslateX(80);
         AnchorPane.setBottomAnchor(player, 0.0);
     }
 
-    private void restart() {
+    void restart() {
+        player.setLayoutX(0);
+        player.setTranslateX(100);
+        player.setTranslateY(0);
         speed = START_SPEED;
         genTimeOut = START_TIME_OUT;
         keysPressed.clear();
@@ -130,13 +130,17 @@ public class RunnerController {
             if (keysPressed.isEmpty()) {
                 player.walk();
             }
-            if (keysPressed.contains(KeyCode.SPACE)) {
+            if (keysPressed.contains(KeyCode.SPACE) || keysPressed.contains(KeyCode.UP)) {
                 player.jump();
             }
         }
 
-        for (Rectangle obstacle : obstacles) {
+        for (Rectangle obstacle : new ArrayList<>(obstacles)) {
             obstacle.setTranslateX(obstacle.getTranslateX() - speed * dtSeconds);
+            if (obstacle.getTranslateX() < -obstacle.getWidth()) {
+                gamePane.getChildren().remove(obstacle);
+                obstacles.remove(obstacle);
+            }
             if (obstacle.getBoundsInParent().intersects(player.getBoundsInParent())) {
                 gameOver();
             }
@@ -165,6 +169,8 @@ public class RunnerController {
 
     private void gameOver() {
         timer.stop();
+        player.stop();
+
         FXMLLoader loader = new FXMLLoader(Main.class.getResource("fxml/game_over.fxml"));
         Parent load;
         try {

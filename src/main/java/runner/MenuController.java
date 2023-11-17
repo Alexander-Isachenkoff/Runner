@@ -29,6 +29,7 @@ public class MenuController {
         RunnerController controller = loader.getController();
         controller.setPlayer(players.get(pagination.getCurrentPageIndex()));
         pagination.getScene().setRoot(parent);
+        controller.restart();
     }
 
 }

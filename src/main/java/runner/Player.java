@@ -54,6 +54,7 @@ public class Player extends Rectangle {
     }
 
     public void stop() {
+        jumpTransition.stop();
         walkAnimation.stop();
     }
 
