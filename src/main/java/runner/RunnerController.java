@@ -1,7 +1,9 @@
 package runner;
 
 import javafx.animation.AnimationTimer;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -29,10 +31,11 @@ public class RunnerController {
     private final Set<KeyCode> keysPressed = new HashSet<>();
     private final List<Image> obstaclesImages = FileUtils.getImages("obstacles");
     private final Set<Rectangle> obstacles = new HashSet<>();
+    private final Set<Coin> coins = new HashSet<>();
     private final double START_SPEED = 300;
     private final double START_TIME_OUT = 2;
     private final IntegerProperty record = new SimpleIntegerProperty(-1);
-    private final IntegerProperty score = new SimpleIntegerProperty(-1);
+    private final DoubleProperty score = new SimpleDoubleProperty(-1);
     @FXML
     private AnchorPane gamePane;
     @FXML
@@ -43,11 +46,10 @@ public class RunnerController {
     private Player player;
 
     private long lastUpdate;
-    private long lastGen;
+    private long lastObstacleGen;
     private AnimationTimer timer;
     private double speed = START_SPEED;
-    private double genTimeOut = START_TIME_OUT;
-    private long startTime;
+    private double obstacleGenTimeOut = START_TIME_OUT;
 
     private static void saveRecord(int value) {
         try (DataOutputStream os = new DataOutputStream(Files.newOutputStream(Paths.get(RECORD_FILE)))) {
@@ -108,7 +110,7 @@ public class RunnerController {
         player.setTranslateX(100);
         player.setTranslateY(0);
         speed = START_SPEED;
-        genTimeOut = START_TIME_OUT;
+        obstacleGenTimeOut = START_TIME_OUT;
         keysPressed.clear();
         gamePane.getChildren().removeAll(obstacles);
         obstacles.clear();
@@ -120,7 +122,6 @@ public class RunnerController {
 
     private void update(long now) {
         if (lastUpdate == 0) {
-            startTime = now;
             lastUpdate = now;
         }
         double dtSeconds = (now - lastUpdate) / 1e9;
@@ -146,8 +147,21 @@ public class RunnerController {
             }
         }
 
-        if (lastUpdate - lastGen > genTimeOut * 1e9) {
-            lastGen = lastUpdate;
+        for (Coin coin : new ArrayList<>(coins)) {
+            coin.setTranslateX(coin.getTranslateX() - speed * dtSeconds);
+            if (coin.getTranslateX() < -coin.getWidth()) {
+                gamePane.getChildren().remove(coin);
+                coins.remove(coin);
+            }
+            if (coin.getBoundsInParent().intersects(player.getColliderBounds())) {
+                gamePane.getChildren().remove(coin);
+                coins.remove(coin);
+                score.set(score.get() + coin.getCost());
+            }
+        }
+
+        if (lastUpdate - lastObstacleGen > obstacleGenTimeOut * 1e9) {
+            lastObstacleGen = lastUpdate;
             int i = new Random().nextInt(obstaclesImages.size());
             Image image = obstaclesImages.get(i);
             Rectangle rectangle = new Rectangle(image.getWidth(), image.getHeight());
@@ -156,14 +170,21 @@ public class RunnerController {
             AnchorPane.setBottomAnchor(rectangle, 0.0);
             rectangle.setTranslateX(gamePane.getWidth());
             obstacles.add(rectangle);
+
+            Coin coin = Coin.createRandom();
+            gamePane.getChildren().add(coin);
+            AnchorPane.setBottomAnchor(coin, 0.0);
+            coin.setTranslateX(gamePane.getWidth() - 100);
+            coins.add(coin);
         }
 
         speed += dtSeconds * ACC;
-        genTimeOut -= dtSeconds * 0.01;
+        obstacleGenTimeOut -= dtSeconds * 0.01;
 
-        score.set((int) ((now - startTime) / 1e8));
-        if (score.get() > record.get()) {
-            record.set(score.get());
+        score.set(score.get() + dtSeconds * 10);
+        int intScore = (int) score.get();
+        if (intScore > record.get()) {
+            record.set(intScore);
         }
     }
 
