@@ -3,7 +3,7 @@ package runner.model;
 import javafx.animation.ScaleTransition;
 import javafx.scene.image.Image;
 import javafx.util.Duration;
-import runner.Main;
+import runner.FileUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -35,15 +35,15 @@ public class Coin extends GameObject {
     }
 
     private static Coin createBronze() {
-        return new Coin(100, new Image(Main.class.getResourceAsStream("coins/coinBronze.png")));
+        return new Coin(100, FileUtils.loadImage("images/coins/coinBronze.png"));
     }
 
     private static Coin createSilver() {
-        return new Coin(200, new Image(Main.class.getResourceAsStream("coins/coinSilver.png")));
+        return new Coin(200, FileUtils.loadImage("images/coins/coinSilver.png"));
     }
 
     private static Coin createGold() {
-        return new Coin(300, new Image(Main.class.getResourceAsStream("coins/coinGold.png")));
+        return new Coin(300, FileUtils.loadImage("images/coins/coinGold.png"));
     }
 
     public static Coin createRandom() {

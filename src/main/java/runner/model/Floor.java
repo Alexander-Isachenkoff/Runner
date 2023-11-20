@@ -3,6 +3,7 @@ package runner.model;
 import javafx.geometry.Side;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
+import runner.FileUtils;
 import runner.Main;
 
 public class Floor extends Pane {
@@ -12,7 +13,7 @@ public class Floor extends Pane {
 
     public Floor() {
         setMinHeight(SIZE);
-        image = new Image(Main.class.getResourceAsStream("floor/grassMid.png"));
+        image = FileUtils.loadImage("images/floor/grassMid.png");
         updateBackground(0);
     }
 

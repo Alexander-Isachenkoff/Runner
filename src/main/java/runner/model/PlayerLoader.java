@@ -1,19 +1,19 @@
 package runner.model;
 
 import javafx.scene.image.Image;
-import runner.Main;
+import runner.FileUtils;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class PlayerLoader {
+class PlayerLoader {
 
-    public static Player load(String jumpImgPath, String... walkImagesPaths) {
-        Image jumpImage = new Image(Main.class.getResourceAsStream(jumpImgPath));
-        List<Image> walkImages = Arrays.stream(walkImagesPaths).map(path -> {
-            return new Image(Main.class.getResourceAsStream(path));
-        }).collect(Collectors.toList());
+    static Player load(String jumpImgPath, String... walkImagesPaths) {
+        Image jumpImage = FileUtils.loadImage(jumpImgPath);
+        List<Image> walkImages = Arrays.stream(walkImagesPaths)
+                .map(FileUtils::loadImage)
+                .collect(Collectors.toList());
         return new Player(jumpImage, walkImages);
     }
 

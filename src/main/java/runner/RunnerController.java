@@ -28,7 +28,7 @@ public class RunnerController {
     private static final String RECORD_FILE = "record";
     private static final double ACC = 5;
     private final Set<KeyCode> keysPressed = new HashSet<>();
-    private final List<Image> obstaclesImages = FileUtils.getImages("obstacles");
+    private final List<Image> obstaclesImages = FileUtils.getImages("images/obstacles");
     private final Set<GameObject> gameObjects = new HashSet<>();
     private final double START_SPEED = 300;
     private final double START_TIME_OUT = 2;

@@ -3,6 +3,8 @@ package runner;
 import javafx.scene.image.Image;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
@@ -11,7 +13,7 @@ import java.util.stream.Stream;
 
 public class FileUtils {
     static List<Image> getImages(String dir) {
-        return Stream.of(new File(Main.class.getResource(dir).getFile()).listFiles())
+        return Stream.of(new File(dir).listFiles())
                 .map(file -> {
                     try {
                         return new Image(Files.newInputStream(file.toPath()));
@@ -20,5 +22,13 @@ public class FileUtils {
                     }
                 })
                 .collect(Collectors.toList());
+    }
+
+    public static Image loadImage(String path) {
+        try {
+            return new Image(new FileInputStream(path));
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
