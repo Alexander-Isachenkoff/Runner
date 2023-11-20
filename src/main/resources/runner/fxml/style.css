@@ -20,6 +20,7 @@
 
 .button .text, .toggle-button .text {
     -fx-font-size: 18;
+    -fx-font-family: "Comic Sans MS";
 }
 
 .button:hover, .toggle-button:hover {
