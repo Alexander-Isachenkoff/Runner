@@ -1,6 +1,7 @@
-package runner;
+package runner.model;
 
 import javafx.scene.image.Image;
+import runner.Main;
 
 import java.util.Arrays;
 import java.util.List;

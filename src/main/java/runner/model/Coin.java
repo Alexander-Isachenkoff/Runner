@@ -1,25 +1,30 @@
-package runner;
+package runner.model;
 
 import javafx.animation.ScaleTransition;
 import javafx.scene.image.Image;
-import javafx.scene.paint.ImagePattern;
-import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
+import runner.Main;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.function.Supplier;
 
-public class Coin extends Rectangle {
+public class Coin extends GameObject {
 
+    private static final int SIZE = 50;
     private final int cost;
 
     private Coin(int cost, Image image) {
+        super(image);
         this.cost = cost;
-        setFill(new ImagePattern(image));
-        setWidth(50);
-        setHeight(50);
+
+        getImgRect().setWidth(SIZE);
+        getImgRect().setHeight(SIZE);
+        getColliderRect().setWidth(SIZE / 2.);
+        getColliderRect().setHeight(SIZE / 2.);
+        getColliderRect().setTranslateX(SIZE * 0.25);
+        getColliderRect().setTranslateY(SIZE * 0.25);
 
         ScaleTransition st = new ScaleTransition(Duration.millis(500), this);
         st.setFromX(1);
@@ -29,15 +34,15 @@ public class Coin extends Rectangle {
         st.play();
     }
 
-    public static Coin createBronze() {
+    private static Coin createBronze() {
         return new Coin(100, new Image(Main.class.getResourceAsStream("coins/coinBronze.png")));
     }
 
-    public static Coin createSilver() {
+    private static Coin createSilver() {
         return new Coin(200, new Image(Main.class.getResourceAsStream("coins/coinSilver.png")));
     }
 
-    public static Coin createGold() {
+    private static Coin createGold() {
         return new Coin(300, new Image(Main.class.getResourceAsStream("coins/coinGold.png")));
     }
 

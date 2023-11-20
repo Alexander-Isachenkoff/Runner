@@ -4,6 +4,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Pagination;
+import runner.model.Player;
+import runner.model.PlayerUtils;
 
 import java.io.IOException;
 import java.util.List;

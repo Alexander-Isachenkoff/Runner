@@ -14,8 +14,10 @@ import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.ImagePattern;
-import javafx.scene.shape.Rectangle;
+import runner.model.Coin;
+import runner.model.GameObject;
+import runner.model.Obstacle;
+import runner.model.Player;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -30,8 +32,7 @@ public class RunnerController {
     private static final double ACC = 5;
     private final Set<KeyCode> keysPressed = new HashSet<>();
     private final List<Image> obstaclesImages = FileUtils.getImages("obstacles");
-    private final Set<Rectangle> obstacles = new HashSet<>();
-    private final Set<Coin> coins = new HashSet<>();
+    private final Set<GameObject> gameObjects = new HashSet<>();
     private final double START_SPEED = 300;
     private final double START_TIME_OUT = 2;
     private final IntegerProperty record = new SimpleIntegerProperty(-1);
@@ -112,8 +113,8 @@ public class RunnerController {
         speed = START_SPEED;
         obstacleGenTimeOut = START_TIME_OUT;
         keysPressed.clear();
-        gamePane.getChildren().removeAll(obstacles);
-        obstacles.clear();
+        gamePane.getChildren().removeAll(gameObjects);
+        gameObjects.clear();
         timer.stop();
         lastUpdate = 0;
         timer.start();
@@ -136,27 +137,23 @@ public class RunnerController {
             }
         }
 
-        for (Rectangle obstacle : new ArrayList<>(obstacles)) {
-            obstacle.setTranslateX(obstacle.getTranslateX() - speed * dtSeconds);
-            if (obstacle.getTranslateX() < -obstacle.getWidth()) {
-                gamePane.getChildren().remove(obstacle);
-                obstacles.remove(obstacle);
+        for (GameObject gameObject : new ArrayList<>(gameObjects)) {
+            gameObject.setTranslateX(gameObject.getTranslateX() - speed * dtSeconds);
+            if (gameObject.getTranslateX() < -gameObject.getBoundsInParent().getWidth()) {
+                gamePane.getChildren().remove(gameObject);
+                gameObjects.remove(gameObject);
             }
-            if (obstacle.getBoundsInParent().intersects(player.getColliderBounds())) {
-                gameOver();
-            }
-        }
 
-        for (Coin coin : new ArrayList<>(coins)) {
-            coin.setTranslateX(coin.getTranslateX() - speed * dtSeconds);
-            if (coin.getTranslateX() < -coin.getWidth()) {
-                gamePane.getChildren().remove(coin);
-                coins.remove(coin);
-            }
-            if (coin.getBoundsInParent().intersects(player.getColliderBounds())) {
-                gamePane.getChildren().remove(coin);
-                coins.remove(coin);
-                score.set(score.get() + coin.getCost());
+            if (gameObject.getColliderBounds().intersects(player.getColliderBounds())) {
+                if (gameObject instanceof Obstacle) {
+                    gameOver();
+                }
+                if (gameObject instanceof Coin) {
+                    Coin coin = (Coin) gameObject;
+                    gamePane.getChildren().remove(coin);
+                    gameObjects.remove(coin);
+                    score.set(score.get() + coin.getCost());
+                }
             }
         }
 
@@ -164,18 +161,17 @@ public class RunnerController {
             lastObstacleGen = lastUpdate;
             int i = new Random().nextInt(obstaclesImages.size());
             Image image = obstaclesImages.get(i);
-            Rectangle rectangle = new Rectangle(image.getWidth(), image.getHeight());
-            rectangle.setFill(new ImagePattern(image));
-            gamePane.getChildren().add(rectangle);
-            AnchorPane.setBottomAnchor(rectangle, 0.0);
-            rectangle.setTranslateX(gamePane.getWidth());
-            obstacles.add(rectangle);
+            Obstacle obstacle = new Obstacle(image);
+            gamePane.getChildren().add(obstacle);
+            AnchorPane.setBottomAnchor(obstacle, 0.0);
+            obstacle.setTranslateX(gamePane.getWidth());
+            gameObjects.add(obstacle);
 
             Coin coin = Coin.createRandom();
             gamePane.getChildren().add(coin);
             AnchorPane.setBottomAnchor(coin, 0.0);
             coin.setTranslateX(gamePane.getWidth() - 100);
-            coins.add(coin);
+            gameObjects.add(coin);
         }
 
         speed += dtSeconds * ACC;
