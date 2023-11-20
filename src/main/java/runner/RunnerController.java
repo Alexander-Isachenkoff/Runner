@@ -141,7 +141,7 @@ public class RunnerController {
                 gamePane.getChildren().remove(obstacle);
                 obstacles.remove(obstacle);
             }
-            if (obstacle.getBoundsInParent().intersects(player.getBoundsInParent())) {
+            if (obstacle.getBoundsInParent().intersects(player.getColliderBounds())) {
                 gameOver();
             }
         }
