@@ -14,10 +14,7 @@ import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
-import runner.model.Coin;
-import runner.model.GameObject;
-import runner.model.Obstacle;
-import runner.model.Player;
+import runner.model.*;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -51,6 +48,8 @@ public class RunnerController {
     private AnimationTimer timer;
     private double speed = START_SPEED;
     private double obstacleGenTimeOut = START_TIME_OUT;
+    private double distance;
+    private Floor floor;
 
     private static void saveRecord(int value) {
         try (DataOutputStream os = new DataOutputStream(Files.newOutputStream(Paths.get(RECORD_FILE)))) {
@@ -98,12 +97,18 @@ public class RunnerController {
                 update(now);
             }
         };
+
+        floor = new Floor();
+        gamePane.getChildren().add(floor);
+        AnchorPane.setBottomAnchor(floor, 0.0);
+        AnchorPane.setLeftAnchor(floor, 0.0);
+        AnchorPane.setRightAnchor(floor, 0.0);
     }
 
     void setPlayer(Player player) {
         this.player = player;
-        gamePane.getChildren().add(player);
-        AnchorPane.setBottomAnchor(player, 0.0);
+        gamePane.getChildren().add(0, player);
+        AnchorPane.setBottomAnchor(player, (double) Floor.SIZE);
     }
 
     void restart() {
@@ -119,6 +124,7 @@ public class RunnerController {
         lastUpdate = 0;
         timer.start();
         score.set(0);
+        distance = 0;
     }
 
     private void update(long now) {
@@ -137,8 +143,13 @@ public class RunnerController {
             }
         }
 
+        double deltaDistance = speed * dtSeconds;
+        distance += deltaDistance;
+
+        floor.updateBackground(-distance);
+
         for (GameObject gameObject : new ArrayList<>(gameObjects)) {
-            gameObject.setTranslateX(gameObject.getTranslateX() - speed * dtSeconds);
+            gameObject.setTranslateX(gameObject.getTranslateX() - deltaDistance);
             if (gameObject.getTranslateX() < -gameObject.getBoundsInParent().getWidth()) {
                 gamePane.getChildren().remove(gameObject);
                 gameObjects.remove(gameObject);
@@ -162,16 +173,14 @@ public class RunnerController {
             int i = new Random().nextInt(obstaclesImages.size());
             Image image = obstaclesImages.get(i);
             Obstacle obstacle = new Obstacle(image);
-            gamePane.getChildren().add(obstacle);
-            AnchorPane.setBottomAnchor(obstacle, 0.0);
+            addGameObject(obstacle);
+            AnchorPane.setBottomAnchor(obstacle, (double) Floor.SIZE);
             obstacle.setTranslateX(gamePane.getWidth());
-            gameObjects.add(obstacle);
 
             Coin coin = Coin.createRandom();
-            gamePane.getChildren().add(coin);
-            AnchorPane.setBottomAnchor(coin, 0.0);
+            addGameObject(coin);
+            AnchorPane.setBottomAnchor(coin, (double) Floor.SIZE);
             coin.setTranslateX(gamePane.getWidth() - 100);
-            gameObjects.add(coin);
         }
 
         speed += dtSeconds * ACC;
@@ -182,6 +191,11 @@ public class RunnerController {
         if (intScore > record.get()) {
             record.set(intScore);
         }
+    }
+
+    private void addGameObject(GameObject gameObject) {
+        gamePane.getChildren().add(0, gameObject);
+        gameObjects.add(gameObject);
     }
 
     private void gameOver() {
