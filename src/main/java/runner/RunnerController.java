@@ -8,12 +8,12 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
+import javafx.geometry.Side;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import runner.model.*;
 
 import java.io.DataInputStream;
@@ -34,15 +34,14 @@ public class RunnerController {
     private final double START_TIME_OUT = 2;
     private final IntegerProperty record = new SimpleIntegerProperty(-1);
     private final DoubleProperty score = new SimpleDoubleProperty(-1);
+    private final Image bgImage = FileUtils.loadImage("images/background/bg_desert.png");
     @FXML
     private AnchorPane gamePane;
     @FXML
     private Label scoreLabel;
     @FXML
     private Label recordLabel;
-
     private Player player;
-
     private long lastUpdate;
     private long lastObstacleGen;
     private AnimationTimer timer;
@@ -147,6 +146,7 @@ public class RunnerController {
         distance += deltaDistance;
 
         floor.updateBackground(-distance);
+        this.updateBackground();
 
         for (GameObject gameObject : new ArrayList<>(gameObjects)) {
             gameObject.setTranslateX(gameObject.getTranslateX() - deltaDistance);
@@ -238,6 +238,11 @@ public class RunnerController {
             throw new RuntimeException(e);
         }
         gamePane.getScene().setRoot(parent);
+    }
+
+    private void updateBackground() {
+        BackgroundPosition position = new BackgroundPosition(Side.LEFT, -distance / 10, false, Side.TOP, 0, false);
+        gamePane.setBackground(new Background(new BackgroundImage(bgImage, BackgroundRepeat.REPEAT, BackgroundRepeat.NO_REPEAT, position, BackgroundSize.DEFAULT)));
     }
 
 }
