@@ -4,7 +4,6 @@ import javafx.geometry.Side;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import runner.FileUtils;
-import runner.Main;
 
 public class Floor extends Pane {
 

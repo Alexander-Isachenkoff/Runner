@@ -35,24 +35,24 @@ public class Coin extends GameObject {
     }
 
     private static Coin createBronze() {
-        return new Coin(100, FileUtils.loadImage("images/coins/coinBronze.png"));
+        return new Coin(10, FileUtils.loadImage("images/coins/coinBronze.png"));
     }
 
     private static Coin createSilver() {
-        return new Coin(200, FileUtils.loadImage("images/coins/coinSilver.png"));
+        return new Coin(20, FileUtils.loadImage("images/coins/coinSilver.png"));
     }
 
     private static Coin createGold() {
-        return new Coin(300, FileUtils.loadImage("images/coins/coinGold.png"));
+        return new Coin(30, FileUtils.loadImage("images/coins/coinGold.png"));
     }
 
     public static Coin createRandom() {
-        int i = new Random().nextInt(3);
         List<Supplier<Coin>> list = Arrays.asList(
                 Coin::createBronze,
                 Coin::createSilver,
                 Coin::createGold
         );
+        int i = new Random().nextInt(list.size());
         return list.get(i).get();
     }
 
