@@ -32,8 +32,12 @@ public class GameObject extends Group {
         return colliderRect;
     }
 
-    public Bounds getColliderBounds() {
+    private Bounds getColliderBounds() {
         return localToParent(colliderRect.getBoundsInParent());
+    }
+
+    public boolean intersects(GameObject gameObject) {
+        return this.getColliderBounds().intersects(gameObject.getColliderBounds());
     }
 
 }

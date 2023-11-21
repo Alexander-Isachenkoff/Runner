@@ -155,7 +155,7 @@ public class RunnerController {
                 gameObjects.remove(gameObject);
             }
 
-            if (gameObject.getColliderBounds().intersects(player.getColliderBounds())) {
+            if (gameObject.intersects(player)) {
                 if (gameObject instanceof Obstacle) {
                     gameOver();
                 }
